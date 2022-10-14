@@ -23,7 +23,7 @@ import 'package:space_fortress/widgets/overlays/pause_menu.dart';
 class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
   late SpriteSheet _spriteSheet;
-  late Player _player;
+  late Player player;
   late Fortress _fortress;
   late EnemyManager _enemyManager;
   late JoystickComponent joystick;
@@ -32,6 +32,7 @@ class SpaceFortressGame extends FlameGame
   late AudioPlayerComponent _audioPlayerComponent;
   late PolygonComponent hexagonShape;
   bool _isAlreadyLoaded = false;
+
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -60,13 +61,13 @@ class SpaceFortressGame extends FlameGame
           columns: 8,
           rows: 6);
 
-      _player = Player(
+      player = Player(
         sprite: _spriteSheet.getSpriteById(4),
         size: Vector2(50, 50),
         position: Vector2(180, 130),
       );
-      _player.anchor = Anchor.center;
-      add(_player);
+      player.anchor = Anchor.center;
+      add(player);
 
       _fortress = Fortress(
         sprite: _spriteSheet.getSpriteById(37),
@@ -112,8 +113,8 @@ class SpaceFortressGame extends FlameGame
           Bullet bullet = Bullet(
             sprite: _spriteSheet.getSpriteById(28),
             size: Vector2(64, 64),
-            position: _player.position.clone(),
-            playerAngle: _player.angle,
+            position: player.position.clone(),
+            playerAngle: player.angle,
           );
           bullet.anchor = Anchor.center;
           add(bullet);
@@ -127,19 +128,19 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(80, size.y - 110),
         size: Vector2(64, 64),
         onTDown: () {
-          _player.moveAngel =
-              Vector2(sin(_player.angle), -cos(_player.angle)).clone();
-          _player.speed = 50;
-          _player.move = true;
+          player.moveAngel =
+              Vector2(sin(player.angle), -cos(player.angle)).clone();
+          player.speed = 50;
+          player.move = true;
         },
         onTUp: () {
-          _player.moveAngel =
-              Vector2(sin(_player.angle), -cos(_player.angle)).clone();
-          _player.speed = 200;
-          _player.move = true;
+          player.moveAngel =
+              Vector2(sin(player.angle), -cos(player.angle)).clone();
+          player.speed = 200;
+          player.move = true;
         },
         onTCancel: () {
-          _player.move = false;
+          player.move = false;
         },
       );
       add(moveButton);
@@ -149,13 +150,13 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(120, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
-          _player.rotateRight = false;
+          player.rotateRight = false;
         },
         onTUp: () {
-          _player.rotateRight = true;
+          player.rotateRight = true;
         },
         onTCancel: () {
-          _player.rotateRight = false;
+          player.rotateRight = false;
         },
       );
       rotateRightButton.angle = -4.7;
@@ -166,13 +167,13 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(40, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
-          _player.rotateLeft = false;
+          player.rotateLeft = false;
         },
         onTUp: () {
-          _player.rotateLeft = true;
+          player.rotateLeft = true;
         },
         onTCancel: () {
-          _player.rotateLeft = false;
+          player.rotateLeft = false;
         },
       );
       rotateLeftButton.angle = 4.7;
@@ -241,32 +242,33 @@ class SpaceFortressGame extends FlameGame
     _commandList.addAll(_addLaterCommandList);
     _addLaterCommandList.clear();
 
-    _playerScore.text = "Score: ${_player.score}";
-    _playerHealth.text = "Health: ${_player.health}%";
+    _playerScore.text = "Score: ${player.score}";
+    _playerHealth.text = "Health: ${player.health}%";
 
-    if (_player.health <= 0 && !camera.shaking) {
+    if (player.health <= 0 && !camera.shaking) {
       pauseEngine();
       overlays.remove(PauseButton.id);
       overlays.add(GameOverMenu.id);
     }
+  
 
     // track the player
-    // if (_player.move) {
+    // if (player.move) {
     //   _fortress.add(
     //     RotateEffect.by(
-    //       _fortress.position.angleTo(_player.position),
+    //       _fortress.angleTo(player.absolutePosition),
     //       LinearEffectController(1),
     //       onComplete: () => {},
     //     ),
     //   );
     // }
-    // _fortress.angle = _fortress.position.angleTo(_player.position);
+    
   }
 
   @override
   void render(Canvas canvas) {
     canvas.drawRect(
-      Rect.fromLTWH(size.x - 107, 10, _player.health.toDouble(), 20),
+      Rect.fromLTWH(size.x - 107, 10, player.health.toDouble(), 20),
       Paint()..color = Colors.blue,
     );
 
@@ -278,7 +280,7 @@ class SpaceFortressGame extends FlameGame
   }
 
   void reset() {
-    _player.reset();
+    player.reset();
     _enemyManager.reset();
 
     children.whereType<Enemy>().forEach((enemy) => {enemy.removeFromParent()});
@@ -295,7 +297,7 @@ class SpaceFortressGame extends FlameGame
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-        if (_player.health > 0) {
+        if (player.health > 0) {
           pauseEngine();
           overlays.remove(PauseButton.id);
           overlays.add(PauseMenu.id);

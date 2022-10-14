@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress/game/enemy.dart';
@@ -25,9 +26,16 @@ class Fortress extends SpriteComponent
 
   @override
   Future<void>? onLoad() {
-    add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 33)
-      ..debugMode = true);
+    add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 33));
     return super.onLoad();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (gameRef.player.move) {
+      lookAt(gameRef.player.position);
+    }
   }
 
   // @override

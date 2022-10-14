@@ -35,8 +35,7 @@ class Player extends SpriteComponent
 
   @override
   Future<void>? onLoad() {
-    add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 23)
-      ..debugMode = true);
+    add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 23));
     return super.onLoad();
   }
 
