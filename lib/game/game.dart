@@ -24,7 +24,7 @@ class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
   late SpriteSheet _spriteSheet;
   late Player player;
-  late Fortress _fortress;
+  late Fortress fortress;
   late EnemyManager _enemyManager;
   late JoystickComponent joystick;
   late TextComponent _playerScore;
@@ -42,8 +42,8 @@ class SpaceFortressGame extends FlameGame
     if (!_isAlreadyLoaded) {
       await images.loadAll(["simpleSpace_tilesheet@2.png", "joystick.png"]);
 
-      // _audioPlayerComponent = AudioPlayerComponent();
-      // add(_audioPlayerComponent);
+      _audioPlayerComponent = AudioPlayerComponent();
+      add(_audioPlayerComponent);
 
       ParallaxComponent _background = await ParallaxComponent.load(
         [
@@ -69,16 +69,16 @@ class SpaceFortressGame extends FlameGame
       player.anchor = Anchor.center;
       add(player);
 
-      _fortress = Fortress(
+      fortress = Fortress(
         sprite: _spriteSheet.getSpriteById(37),
         size: Vector2(70, 70),
         position: size / 2,
       );
-      _fortress.anchor = Anchor.center;
-      add(_fortress);
+      fortress.anchor = Anchor.center;
+      add(fortress);
 
-      // _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
-      // add(_enemyManager);
+      _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
+      add(_enemyManager);
 
       final controllersSpriteSheet = SpriteSheet.fromColumnsAndRows(
           image: images.fromCache("joystick.png"), columns: 6, rows: 1);
@@ -118,7 +118,7 @@ class SpaceFortressGame extends FlameGame
           );
           bullet.anchor = Anchor.center;
           add(bullet);
-          // _audioPlayerComponent.playSfx("laserSmall.ogg");
+          _audioPlayerComponent.playSfx("laserSmall.ogg");
         },
       );
       add(fireButton);
@@ -250,19 +250,6 @@ class SpaceFortressGame extends FlameGame
       overlays.remove(PauseButton.id);
       overlays.add(GameOverMenu.id);
     }
-  
-
-    // track the player
-    // if (player.move) {
-    //   _fortress.add(
-    //     RotateEffect.by(
-    //       _fortress.angleTo(player.absolutePosition),
-    //       LinearEffectController(1),
-    //       onComplete: () => {},
-    //     ),
-    //   );
-    // }
-    
   }
 
   @override
@@ -310,7 +297,7 @@ class SpaceFortressGame extends FlameGame
 
   @override
   void onAttach() {
-    // _audioPlayerComponent.playBgm("SpaceInvaders.wav");
+    _audioPlayerComponent.playBgm("SpaceInvaders.wav");
     super.onAttach();
   }
 
