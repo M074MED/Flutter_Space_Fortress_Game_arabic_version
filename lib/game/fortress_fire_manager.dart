@@ -3,15 +3,14 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:space_fortress/game/bullet.dart';
-import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
 
-class EnemyManager extends Component with HasGameRef<SpaceFortressGame> {
+class FortressFireManager extends Component with HasGameRef<SpaceFortressGame> {
   late Timer _timer;
   SpriteSheet spriteSheet;
   Random random = Random();
 
-  EnemyManager({required this.spriteSheet}) : super() {
+  FortressFireManager({required this.spriteSheet}) : super() {
     _timer = Timer(
       3,
       onTick: _fortressFire,
@@ -26,14 +25,15 @@ class EnemyManager extends Component with HasGameRef<SpaceFortressGame> {
       // position.clamp(
       //     Vector2.zero() + initialSize / 2, gameRef.size - initialSize / 2);
 
-      Bullet enemy = Bullet(
+      Bullet fortressBullet = Bullet(
+      name: "fortressBullet",
         sprite: spriteSheet.getSpriteById(31),
         size: initialSize,
         position: position,
         playerAngle: gameRef.fortress.angle,
       );
-      enemy.anchor = Anchor.center;
-      gameRef.add(enemy);
+      fortressBullet.anchor = Anchor.center;
+      gameRef.add(fortressBullet);
     }
   }
 

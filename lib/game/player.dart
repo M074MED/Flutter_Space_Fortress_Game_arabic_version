@@ -4,6 +4,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
+import 'package:space_fortress/game/bullet.dart';
 import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
 
@@ -11,17 +12,16 @@ class Player extends SpriteComponent
     with HasGameRef<SpaceFortressGame>, CollisionCallbacks {
   double speed = 50;
   final Random _random = Random();
-  int _score = 0;
-  int get score => _score;
-  int _health = 100;
-  int get health => _health;
+  int health = 4;
   bool move = false;
   Vector2 moveAngel = Vector2(0, 0);
   bool rotateRight = false;
   bool rotateLeft = false;
 
+  // Vector2 getRandomVector() =>
+  //     (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
   Vector2 getRandomVector() =>
-      (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
+      (Vector2.random(_random) - Vector2.random(_random)) * 500;
 
   Player({
     Sprite? sprite,
@@ -89,23 +89,47 @@ class Player extends SpriteComponent
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Enemy) {
-      gameRef.camera.shake(intensity: 20);
-      _health -= 10;
-      if (health < 0) {
-        _health = 0;
+    if (other is Bullet && other.name == "fortressBullet") {
+      gameRef.playerPoints -= 50;
+      health -= 1;
+      if (health == 0) {
+        gameRef.playerPoints -= 100;
+        removeFromParent();
+        final particleComponent = ParticleSystemComponent(
+          particle: Particle.generate(
+            count: 10,
+            lifespan: 0.1,
+            generator: (i) => AcceleratedParticle(
+              acceleration: getRandomVector(),
+              speed: getRandomVector(),
+              position: position.clone(),
+              child: CircleParticle(
+                radius: 1.5,
+                paint: Paint()..color = Colors.white,
+              ),
+            ),
+          ),
+        );
+        gameRef.add(particleComponent);
       }
+      other.removeFromParent();
     }
     super.onCollision(intersectionPoints, other);
   }
 
-  void addToScore(int points) {
-    _score += points;
+  @override
+  void onRemove() {
+    gameRef.playerRemoved = true;
+    super.onRemove();
   }
 
+  // void addToScore(int points) {
+  //   _score += points;
+  // }
+
   void reset() {
-    _score = 0;
-    _health = 100;
+    // _score = 0;
+    // _health = 100;
     position = gameRef.canvasSize / 2;
   }
 }

@@ -12,7 +12,7 @@ import 'package:space_fortress/game/audio_player_component.dart';
 import 'package:space_fortress/game/bullet.dart';
 import 'package:space_fortress/game/command.dart';
 import 'package:space_fortress/game/enemy.dart';
-import 'package:space_fortress/game/enemy_manager.dart';
+import 'package:space_fortress/game/fortress_fire_manager.dart';
 import 'package:space_fortress/game/fortress.dart';
 import 'package:space_fortress/game/move_buttons.dart';
 import 'package:space_fortress/game/player.dart';
@@ -22,17 +22,22 @@ import 'package:space_fortress/widgets/overlays/pause_menu.dart';
 
 class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
-  late SpriteSheet _spriteSheet;
+  late SpriteSheet spriteSheet;
   late Player player;
+  int playerPoints = 0;
+  int playerShots = 100;
   late Fortress fortress;
-  late EnemyManager _enemyManager;
+  late FortressFireManager _fortressFireManager;
   late JoystickComponent joystick;
-  late TextComponent _playerScore;
-  late TextComponent _playerHealth;
+  late TextComponent _playerPoints;
+  late TextComponent _playerShots;
+  // late TextComponent _playerHealth;
   late AudioPlayerComponent _audioPlayerComponent;
-  late PolygonComponent hexagonShape;
+  late PolygonComponent outerHexagonShape;
+  late PolygonComponent innerHexagonShape;
   bool _isAlreadyLoaded = false;
-
+  bool playerRemoved = false;
+  bool fortressRemoved = false;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -56,13 +61,13 @@ class SpaceFortressGame extends FlameGame
       );
       add(_background);
 
-      _spriteSheet = SpriteSheet.fromColumnsAndRows(
+      spriteSheet = SpriteSheet.fromColumnsAndRows(
           image: images.fromCache("simpleSpace_tilesheet@2.png"),
           columns: 8,
           rows: 6);
 
       player = Player(
-        sprite: _spriteSheet.getSpriteById(4),
+        sprite: spriteSheet.getSpriteById(4),
         size: Vector2(50, 50),
         position: Vector2(180, 130),
       );
@@ -70,15 +75,15 @@ class SpaceFortressGame extends FlameGame
       add(player);
 
       fortress = Fortress(
-        sprite: _spriteSheet.getSpriteById(37),
+        sprite: spriteSheet.getSpriteById(37),
         size: Vector2(70, 70),
         position: size / 2,
       );
       fortress.anchor = Anchor.center;
       add(fortress);
 
-      _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
-      add(_enemyManager);
+      _fortressFireManager = FortressFireManager(spriteSheet: spriteSheet);
+      add(_fortressFireManager);
 
       final controllersSpriteSheet = SpriteSheet.fromColumnsAndRows(
           image: images.fromCache("joystick.png"), columns: 6, rows: 1);
@@ -111,20 +116,26 @@ class SpaceFortressGame extends FlameGame
         ),
         onPressed: () {
           Bullet bullet = Bullet(
-            sprite: _spriteSheet.getSpriteById(28),
+            name: "playerBullet",
+            sprite: spriteSheet.getSpriteById(28),
             size: Vector2(64, 64),
             position: player.position.clone(),
             playerAngle: player.angle,
           );
           bullet.anchor = Anchor.center;
           add(bullet);
+          playerShots -= 1;
+          if (playerShots < 0) {
+            playerShots = 0;
+            playerPoints -= 3;
+          }
           _audioPlayerComponent.playSfx("laserSmall.ogg");
         },
       );
       add(fireButton);
 
       MoveButtons moveButton = MoveButtons(
-        sprite: _spriteSheet.getSpriteById(0),
+        sprite: spriteSheet.getSpriteById(0),
         position: Vector2(80, size.y - 110),
         size: Vector2(64, 64),
         onTDown: () {
@@ -146,7 +157,7 @@ class SpaceFortressGame extends FlameGame
       add(moveButton);
 
       MoveButtons rotateRightButton = MoveButtons(
-        sprite: _spriteSheet.getSpriteById(0),
+        sprite: spriteSheet.getSpriteById(0),
         position: Vector2(120, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
@@ -163,7 +174,7 @@ class SpaceFortressGame extends FlameGame
       add(rotateRightButton);
 
       MoveButtons rotateLeftButton = MoveButtons(
-        sprite: _spriteSheet.getSpriteById(0),
+        sprite: spriteSheet.getSpriteById(0),
         position: Vector2(40, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
@@ -179,8 +190,8 @@ class SpaceFortressGame extends FlameGame
       rotateLeftButton.angle = 4.7;
       add(rotateLeftButton);
 
-      _playerScore = TextComponent(
-        text: "Score: 0",
+      _playerPoints = TextComponent(
+        text: "Points: 0",
         position: Vector2(10, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -189,13 +200,12 @@ class SpaceFortressGame extends FlameGame
           ),
         ),
       );
-      _playerScore.positionType = PositionType.viewport;
-      add(_playerScore);
+      _playerPoints.positionType = PositionType.viewport;
+      add(_playerPoints);
 
-      _playerHealth = TextComponent(
-        text: "Health: 100%",
-        position: Vector2(size.x - 10, 10),
-        anchor: Anchor.topRight,
+      _playerShots = TextComponent(
+        text: "Shots: 100",
+        position: Vector2(150, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -203,10 +213,24 @@ class SpaceFortressGame extends FlameGame
           ),
         ),
       );
-      _playerHealth.positionType = PositionType.viewport;
-      add(_playerHealth);
+      _playerShots.positionType = PositionType.viewport;
+      add(_playerShots);
 
-      hexagonShape = PolygonComponent.relative(
+      // _playerHealth = TextComponent(
+      //   text: "Health: 100%",
+      //   position: Vector2(size.x - 10, 10),
+      //   anchor: Anchor.topRight,
+      //   textRenderer: TextPaint(
+      //     style: const TextStyle(
+      //       color: Colors.white,
+      //       fontSize: 16,
+      //     ),
+      //   ),
+      // );
+      // _playerHealth.positionType = PositionType.viewport;
+      // add(_playerHealth);
+
+      outerHexagonShape = PolygonComponent.relative(
         [
           Vector2(0.0, -1.0),
           Vector2(-1.0, -0.5),
@@ -223,7 +247,26 @@ class SpaceFortressGame extends FlameGame
         scale: Vector2(0.5, 1.4),
       );
 
-      add(hexagonShape);
+      add(outerHexagonShape);
+
+      innerHexagonShape = PolygonComponent.relative(
+        [
+          Vector2(0.0, -1.0),
+          Vector2(-1.0, -0.5),
+          Vector2(-1.0, 0.5),
+          Vector2(0.0, 1.0),
+          Vector2(1.0, 0.5),
+          Vector2(1.0, -0.5),
+        ],
+        parentSize: size,
+        paint: Paint()..color = Colors.white24,
+        anchor: Anchor.center,
+        position: size / 2,
+        angle: 4.7,
+        scale: Vector2(0.15, 0.5),
+      );
+
+      add(innerHexagonShape);
 
       _isAlreadyLoaded = true;
     }
@@ -242,25 +285,51 @@ class SpaceFortressGame extends FlameGame
     _commandList.addAll(_addLaterCommandList);
     _addLaterCommandList.clear();
 
-    _playerScore.text = "Score: ${player.score}";
-    _playerHealth.text = "Health: ${player.health}%";
+    _playerPoints.text = "Points: $playerPoints";
+    _playerShots.text = "Shots: $playerShots";
+    // _playerHealth.text = "Health: ${player.health}%";
 
-    if (player.health <= 0 && !camera.shaking) {
-      pauseEngine();
-      overlays.remove(PauseButton.id);
-      overlays.add(GameOverMenu.id);
+    // if (player.health <= 0 && !camera.shaking) {
+    //   pauseEngine();
+    //   overlays.remove(PauseButton.id);
+    //   overlays.add(GameOverMenu.id);
+    // }
+    if (playerRemoved) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        player = Player(
+          sprite: spriteSheet.getSpriteById(4),
+          size: Vector2(50, 50),
+          position: Vector2(180, 130),
+        );
+        player.anchor = Anchor.center;
+        add(player);
+      });
+      playerRemoved = false;
+    }
+
+    if (fortressRemoved) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        fortress = Fortress(
+          sprite: spriteSheet.getSpriteById(37),
+          size: Vector2(70, 70),
+          position: size / 2,
+        );
+        fortress.anchor = Anchor.center;
+        add(fortress);
+      });
+      fortressRemoved = false;
     }
   }
 
-  @override
-  void render(Canvas canvas) {
-    canvas.drawRect(
-      Rect.fromLTWH(size.x - 107, 10, player.health.toDouble(), 20),
-      Paint()..color = Colors.blue,
-    );
+  // @override
+  // void render(Canvas canvas) {
+  //   canvas.drawRect(
+  //     Rect.fromLTWH(size.x - 107, 10, player.health.toDouble(), 20),
+  //     Paint()..color = Colors.blue,
+  //   );
 
-    super.render(canvas);
-  }
+  //   super.render(canvas);
+  // }
 
   void addCommand(Command command) {
     _addLaterCommandList.add(command);
@@ -268,7 +337,7 @@ class SpaceFortressGame extends FlameGame
 
   void reset() {
     player.reset();
-    _enemyManager.reset();
+    _fortressFireManager.reset();
 
     children.whereType<Enemy>().forEach((enemy) => {enemy.removeFromParent()});
     children

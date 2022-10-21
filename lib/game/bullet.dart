@@ -9,12 +9,14 @@ class Bullet extends SpriteComponent
     with CollisionCallbacks, HasGameRef<SpaceFortressGame> {
   final double _speed = 450;
   final Vector2 velocity;
+  final String name;
 
   Bullet({
     Sprite? sprite,
     Vector2? position,
     Vector2? size,
     required double playerAngle,
+    required this.name,
   })  : velocity = Vector2(sin(playerAngle), -cos(playerAngle)),
         super(
           sprite: sprite,

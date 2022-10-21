@@ -54,7 +54,7 @@ class Enemy extends SpriteComponent
       }));
 
       final command = Command<Player>(action: (player) {
-        player.addToScore(1);
+        // player.addToScore(1);
       });
       gameRef.addCommand(command);
 
