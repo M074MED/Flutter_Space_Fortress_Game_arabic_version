@@ -17,6 +17,8 @@ class Player extends SpriteComponent
   Vector2 moveAngel = Vector2(0, 0);
   bool rotateRight = false;
   bool rotateLeft = false;
+  bool inHyperSpace = false;
+  int frameCounter = 0;
 
   // Vector2 getRandomVector() =>
   //     (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
@@ -42,12 +44,24 @@ class Player extends SpriteComponent
   void ensureVisible(Vector2 position, Vector2 size) {
     if (position.x > size.x) {
       position.x = 0;
+      inHyperSpace = true;
     } else if (position.x < 0) {
       position.x = size.x;
+      inHyperSpace = true;
     } else if (position.y > size.y) {
       position.y = 0;
+      inHyperSpace = true;
     } else if (position.y < 0) {
       position.y = size.y;
+      inHyperSpace = true;
+    }
+
+    if (frameCounter == 10) {
+      if (inHyperSpace) {
+        gameRef.playerPoints -= 35;
+        inHyperSpace = false;
+      }
+      frameCounter = 0;
     }
   }
 
@@ -84,7 +98,14 @@ class Player extends SpriteComponent
     //   ),
     // );
     // gameRef.add(particleComponent);
+
+    // int oldPoints = gameRef.playerPoints;
+    frameCounter++;
     ensureVisible(position, gameRef.size);
+    // int newPoints = gameRef.playerPoints;
+    // if (oldPoints - newPoints == 70) {
+    //   gameRef.playerPoints += 35;
+    // }
   }
 
   @override

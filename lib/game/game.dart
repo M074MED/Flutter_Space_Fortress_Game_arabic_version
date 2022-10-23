@@ -38,6 +38,9 @@ class SpaceFortressGame extends FlameGame
   bool _isAlreadyLoaded = false;
   bool playerRemoved = false;
   bool fortressRemoved = false;
+  bool inOuterHexagon = false;
+  bool inInnerHexagon = false;
+  bool outOfHexagons = false;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -263,7 +266,7 @@ class SpaceFortressGame extends FlameGame
         anchor: Anchor.center,
         position: size / 2,
         angle: 4.7,
-        scale: Vector2(0.15, 0.5),
+        scale: Vector2(0.12, 0.3),
       );
 
       add(innerHexagonShape);
@@ -318,6 +321,21 @@ class SpaceFortressGame extends FlameGame
         add(fortress);
       });
       fortressRemoved = false;
+    }
+
+    if (outerHexagonShape.containsPoint(player.position) &&
+        !(innerHexagonShape.containsPoint(player.position))) {
+      inOuterHexagon = true;
+      inInnerHexagon = false;
+      outOfHexagons = false;
+    } else if (innerHexagonShape.containsPoint(player.position)) {
+      inOuterHexagon = false;
+      inInnerHexagon = true;
+      outOfHexagons = false;
+    } else {
+      inOuterHexagon = false;
+      inInnerHexagon = false;
+      outOfHexagons = true;
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:space_fortress/game/bullet.dart';
 import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
+import 'package:space_fortress/game/player.dart';
 
 class Fortress extends SpriteComponent
     with HasGameRef<SpaceFortressGame>, CollisionCallbacks {
@@ -17,6 +18,8 @@ class Fortress extends SpriteComponent
   List<DateTime> healthDecreaseTime = [];
   int finish = 0;
   List<DateTime> finishDecreaseTime = [];
+  bool inCollisionWithPlayer = false;
+  int frameCounter = 0;
 
   Vector2 getRandomVector() =>
       (Vector2.random(_random) - Vector2.random(_random)) * 500;
@@ -33,7 +36,9 @@ class Fortress extends SpriteComponent
 
   @override
   Future<void>? onLoad() {
-    add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 33));
+    add(RectangleHitbox(
+        anchor: Anchor.center, position: size / 2, size: size - Vector2.all(10))
+      ..debugMode = true);
     return super.onLoad();
   }
 
@@ -42,6 +47,15 @@ class Fortress extends SpriteComponent
     super.update(dt);
     if (gameRef.player.move) {
       lookAt(gameRef.player.position);
+    }
+    frameCounter++;
+    if (frameCounter == 120) {
+      if (inCollisionWithPlayer) {
+        gameRef.playerPoints -= 5;
+        print("-5 points when inCollisionWithPlayer");
+        inCollisionWithPlayer = false;
+      }
+      frameCounter = 0;
     }
   }
 
@@ -78,7 +92,11 @@ class Fortress extends SpriteComponent
                 250) {
               finish += 1;
               if (finish == 2) {
-                gameRef.playerPoints += 100;
+                if (gameRef.inOuterHexagon || gameRef.inInnerHexagon) {
+                  gameRef.playerPoints += 100;
+                } else if (gameRef.outOfHexagons) {
+                  gameRef.playerPoints += (100 * 0.5).toInt();
+                }
                 removeFromParent();
                 final particleComponent = ParticleSystemComponent(
                   particle: Particle.generate(
@@ -106,6 +124,8 @@ class Fortress extends SpriteComponent
       }
       print("health: $health || finish: $finish");
       other.removeFromParent();
+    } else if (other is Player) {
+      inCollisionWithPlayer = true;
     }
     super.onCollision(intersectionPoints, other);
   }
