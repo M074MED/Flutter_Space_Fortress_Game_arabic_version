@@ -2,17 +2,14 @@ import 'dart:math';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress/game/bullet.dart';
-import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
 import 'package:space_fortress/game/player.dart';
 
 class Fortress extends SpriteComponent
     with HasGameRef<SpaceFortressGame>, CollisionCallbacks {
-  double speed = 50;
   final Random _random = Random();
   int health = 0;
   List<DateTime> healthDecreaseTime = [];

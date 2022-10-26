@@ -56,12 +56,11 @@ class Player extends SpriteComponent
       inHyperSpace = true;
     }
 
-    if (frameCounter == 10) {
+    if (frameCounter % 10 == 0) {
       if (inHyperSpace) {
         gameRef.playerPoints -= 35;
         inHyperSpace = false;
       }
-      frameCounter = 0;
     }
   }
 
@@ -99,13 +98,16 @@ class Player extends SpriteComponent
     // );
     // gameRef.add(particleComponent);
 
-    // int oldPoints = gameRef.playerPoints;
     frameCounter++;
     ensureVisible(position, gameRef.size);
-    // int newPoints = gameRef.playerPoints;
-    // if (oldPoints - newPoints == 70) {
-    //   gameRef.playerPoints += 35;
-    // }
+
+    if (frameCounter % 30 == 0) {
+      if (speed < 200) {
+        gameRef.velocityScore += 7;
+      } else {
+        gameRef.velocityScore -= 7;
+      }
+    }
   }
 
   @override

@@ -25,12 +25,14 @@ class SpaceFortressGame extends FlameGame
   late SpriteSheet spriteSheet;
   late Player player;
   int playerPoints = 0;
+  int velocityScore = 0;
   int playerShots = 100;
   late Fortress fortress;
   late FortressFireManager _fortressFireManager;
   late JoystickComponent joystick;
   late TextComponent _playerPoints;
   late TextComponent _playerShots;
+  late TextComponent _velocityScore;
   // late TextComponent _playerHealth;
   late AudioPlayerComponent _audioPlayerComponent;
   late PolygonComponent outerHexagonShape;
@@ -219,6 +221,19 @@ class SpaceFortressGame extends FlameGame
       _playerShots.positionType = PositionType.viewport;
       add(_playerShots);
 
+      _velocityScore = TextComponent(
+        text: "VLCTY: 0",
+        position: Vector2(400, 10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+        ),
+      );
+      _velocityScore.positionType = PositionType.viewport;
+      add(_velocityScore);
+
       // _playerHealth = TextComponent(
       //   text: "Health: 100%",
       //   position: Vector2(size.x - 10, 10),
@@ -290,6 +305,7 @@ class SpaceFortressGame extends FlameGame
 
     _playerPoints.text = "Points: $playerPoints";
     _playerShots.text = "Shots: $playerShots";
+    _velocityScore.text = "VLCTY: $velocityScore";
     // _playerHealth.text = "Health: ${player.health}%";
 
     // if (player.health <= 0 && !camera.shaking) {
