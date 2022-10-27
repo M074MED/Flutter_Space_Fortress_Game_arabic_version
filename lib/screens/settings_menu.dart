@@ -45,14 +45,14 @@ class _SettingsMenuState extends State<SettingsMenu> {
                     settings.soundEffects = newValue;
                   });
                 }),
-            SwitchListTile(
-                title: const Text("Background Music"),
-                value: settings.backgroundMusic,
-                onChanged: (newValue) {
-                  setState(() {
-                    settings.backgroundMusic = newValue;
-                  });
-                }),
+            // SwitchListTile(
+            //     title: const Text("Background Music"),
+            //     value: settings.backgroundMusic,
+            //     onChanged: (newValue) {
+            //       setState(() {
+            //         settings.backgroundMusic = newValue;
+            //       });
+            //     }),
             SizedBox(
               width: MediaQuery.of(context).size.width / 3,
               child: ElevatedButton(

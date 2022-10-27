@@ -18,6 +18,7 @@ class Player extends SpriteComponent
   bool rotateRight = false;
   bool rotateLeft = false;
   bool inHyperSpace = false;
+  bool canShoot = true;
   int frameCounter = 0;
 
   // Vector2 getRandomVector() =>
@@ -67,6 +68,8 @@ class Player extends SpriteComponent
   @override
   void update(double dt) {
     super.update(dt);
+    frameCounter++;
+
     if (move) {
       position.add(moveAngel * speed * dt);
     }
@@ -98,7 +101,6 @@ class Player extends SpriteComponent
     // );
     // gameRef.add(particleComponent);
 
-    frameCounter++;
     ensureVisible(position, gameRef.size);
 
     if (frameCounter % 30 == 0) {
@@ -107,6 +109,28 @@ class Player extends SpriteComponent
       } else {
         gameRef.velocityScore -= 7;
       }
+      frameCounter = 0;
+    }
+
+    if (health == 0) {
+      gameRef.playerPoints -= 100;
+      removeFromParent();
+      final particleComponent = ParticleSystemComponent(
+        particle: Particle.generate(
+          count: 10,
+          lifespan: 0.1,
+          generator: (i) => AcceleratedParticle(
+            acceleration: getRandomVector(),
+            speed: getRandomVector(),
+            position: position.clone(),
+            child: CircleParticle(
+              radius: 1.5,
+              paint: Paint()..color = Colors.white,
+            ),
+          ),
+        ),
+      );
+      gameRef.add(particleComponent);
     }
   }
 
@@ -115,26 +139,6 @@ class Player extends SpriteComponent
     if (other is Bullet && other.name == "fortressBullet") {
       gameRef.playerPoints -= 50;
       health -= 1;
-      if (health == 0) {
-        gameRef.playerPoints -= 100;
-        removeFromParent();
-        final particleComponent = ParticleSystemComponent(
-          particle: Particle.generate(
-            count: 10,
-            lifespan: 0.1,
-            generator: (i) => AcceleratedParticle(
-              acceleration: getRandomVector(),
-              speed: getRandomVector(),
-              position: position.clone(),
-              child: CircleParticle(
-                radius: 1.5,
-                paint: Paint()..color = Colors.white,
-              ),
-            ),
-          ),
-        );
-        gameRef.add(particleComponent);
-      }
       other.removeFromParent();
     }
     super.onCollision(intersectionPoints, other);

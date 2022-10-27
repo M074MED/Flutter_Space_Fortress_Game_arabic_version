@@ -1,8 +1,26 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_fortress/screens/game_play.dart';
 import 'package:space_fortress/screens/settings_menu.dart';
+
+String getRandomChar() {
+  return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split("")[Random().nextInt(25)];
+}
+
+String firstChar = getRandomChar();
+String secondChar = getRandomChar();
+String thirdChar = getRandomChar();
+
+List<String> foeMinesCode = [
+  firstChar,
+  secondChar == firstChar ? getRandomChar() : secondChar,
+  thirdChar == firstChar || thirdChar == secondChar
+      ? getRandomChar()
+      : thirdChar
+];
 
 class MainMenu extends StatelessWidget {
   const MainMenu({Key? key}) : super(key: key);
@@ -47,6 +65,9 @@ class MainMenu extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 10,
+            ),
             SizedBox(
               width: MediaQuery.of(context).size.width / 3,
               child: ElevatedButton(
@@ -61,6 +82,14 @@ class MainMenu extends StatelessWidget {
                   "Options",
                 ),
               ),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            Text(
+              "The code of foe mines is\n${foeMinesCode.join(",")}",
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18),
             ),
           ],
         ),

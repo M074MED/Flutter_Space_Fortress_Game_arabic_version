@@ -13,7 +13,7 @@ class AudioPlayerComponent extends Component {
     await FlameAudio.audioCache.loadAll([
       "laser.ogg",
       "laserSmall.ogg",
-      "SpaceInvaders.wav",
+      // "SpaceInvaders.wav",
     ]);
 
     fire = await AudioPool.create("audio/laserSmall.ogg", maxPlayers: 9999999);
@@ -22,11 +22,11 @@ class AudioPlayerComponent extends Component {
     return super.onLoad();
   }
 
-  void playBgm(String fileName) {
-    if (settings.backgroundMusic) {
-      FlameAudio.bgm.play(fileName);
-    }
-  }
+  // void playBgm(String fileName) {
+  //   if (settings.backgroundMusic) {
+  //     FlameAudio.bgm.play(fileName);
+  //   }
+  // }
 
   void playSfx(String fileName) {
     if (settings.soundEffects) {
@@ -43,7 +43,7 @@ class AudioPlayerComponent extends Component {
     }
   }
 
-  void stopBgm() {
-    FlameAudio.bgm.stop();
-  }
+  // void stopBgm() {
+  //   FlameAudio.bgm.stop();
+  // }
 }

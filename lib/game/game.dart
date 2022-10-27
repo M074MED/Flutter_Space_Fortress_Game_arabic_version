@@ -16,9 +16,10 @@ import 'package:space_fortress/game/fortress_fire_manager.dart';
 import 'package:space_fortress/game/fortress.dart';
 import 'package:space_fortress/game/move_buttons.dart';
 import 'package:space_fortress/game/player.dart';
-import 'package:space_fortress/widgets/overlays/game_over_menu.dart';
 import 'package:space_fortress/widgets/overlays/pause_button.dart';
 import 'package:space_fortress/widgets/overlays/pause_menu.dart';
+
+import 'mine.dart';
 
 class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
@@ -28,11 +29,13 @@ class SpaceFortressGame extends FlameGame
   int velocityScore = 0;
   int playerShots = 100;
   late Fortress fortress;
+  late Mine mine;
   late FortressFireManager _fortressFireManager;
   late JoystickComponent joystick;
   late TextComponent _playerPoints;
   late TextComponent _playerShots;
   late TextComponent _velocityScore;
+  late TextComponent _mineCode;
   // late TextComponent _playerHealth;
   late AudioPlayerComponent _audioPlayerComponent;
   late PolygonComponent outerHexagonShape;
@@ -43,6 +46,8 @@ class SpaceFortressGame extends FlameGame
   bool inOuterHexagon = false;
   bool inInnerHexagon = false;
   bool outOfHexagons = false;
+  bool mineOnScreen = false;
+  int frameCounter = 0;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -120,21 +125,28 @@ class SpaceFortressGame extends FlameGame
           bottom: 50,
         ),
         onPressed: () {
-          Bullet bullet = Bullet(
-            name: "playerBullet",
-            sprite: spriteSheet.getSpriteById(28),
-            size: Vector2(64, 64),
-            position: player.position.clone(),
-            playerAngle: player.angle,
-          );
-          bullet.anchor = Anchor.center;
-          add(bullet);
-          playerShots -= 1;
-          if (playerShots < 0) {
-            playerShots = 0;
-            playerPoints -= 3;
+          if (mineOnScreen) {
+            player.canShoot = !mine.isFoe;
+          } else {
+            player.canShoot = true;
           }
-          _audioPlayerComponent.playSfx("laserSmall.ogg");
+          if (player.canShoot) {
+            Bullet bullet = Bullet(
+              name: "playerBullet",
+              sprite: spriteSheet.getSpriteById(28),
+              size: Vector2(64, 64),
+              position: player.position.clone(),
+              playerAngle: player.angle,
+            );
+            bullet.anchor = Anchor.center;
+            add(bullet);
+            playerShots -= 1;
+            if (playerShots < 0) {
+              playerShots = 0;
+              playerPoints -= 3;
+            }
+            _audioPlayerComponent.playSfx("laserSmall.ogg");
+          }
         },
       );
       add(fireButton);
@@ -234,6 +246,19 @@ class SpaceFortressGame extends FlameGame
       _velocityScore.positionType = PositionType.viewport;
       add(_velocityScore);
 
+      _mineCode = TextComponent(
+        text: "IFF: ",
+        position: Vector2(500, 10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+        ),
+      );
+      _mineCode.positionType = PositionType.viewport;
+      add(_mineCode);
+
       // _playerHealth = TextComponent(
       //   text: "Health: 100%",
       //   position: Vector2(size.x - 10, 10),
@@ -293,6 +318,7 @@ class SpaceFortressGame extends FlameGame
   @override
   void update(double dt) {
     super.update(dt);
+    frameCounter++;
 
     _commandList.forEach((command) {
       children.forEach((component) {
@@ -306,6 +332,7 @@ class SpaceFortressGame extends FlameGame
     _playerPoints.text = "Points: $playerPoints";
     _playerShots.text = "Shots: $playerShots";
     _velocityScore.text = "VLCTY: $velocityScore";
+    _mineCode.text = "IFF: ${mineOnScreen ? mine.code : ""}";
     // _playerHealth.text = "Health: ${player.health}%";
 
     // if (player.health <= 0 && !camera.shaking) {
@@ -353,6 +380,23 @@ class SpaceFortressGame extends FlameGame
       inInnerHexagon = false;
       outOfHexagons = true;
     }
+
+    mineOnScreen = children.whereType<Mine>().isNotEmpty;
+    if (mineOnScreen) {
+      if (frameCounter % 600 == 0) {
+        mine.removeFromParent();
+        frameCounter = 0;
+      }
+    } else {
+      if (frameCounter % 240 == 0) {
+        mine = Mine(
+          sprite: spriteSheet.getSpriteById(41),
+          size: Vector2(50, 50),
+        );
+        mine.anchor = Anchor.center;
+        add(mine);
+      }
+    }
   }
 
   // @override
@@ -398,15 +442,15 @@ class SpaceFortressGame extends FlameGame
     super.lifecycleStateChange(state);
   }
 
-  @override
-  void onAttach() {
-    _audioPlayerComponent.playBgm("SpaceInvaders.wav");
-    super.onAttach();
-  }
+  // @override
+  // void onAttach() {
+  //   _audioPlayerComponent.playBgm("SpaceInvaders.wav");
+  //   super.onAttach();
+  // }
 
-  @override
-  void onDetach() {
-    _audioPlayerComponent.stopBgm();
-    super.onDetach();
-  }
+  // @override
+  // void onDetach() {
+  //   _audioPlayerComponent.stopBgm();
+  //   super.onDetach();
+  // }
 }
