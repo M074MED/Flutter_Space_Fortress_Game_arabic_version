@@ -4,7 +4,6 @@ import 'package:flame/events.dart';
 class MoveButtons extends SpriteComponent with Tappable {
   late Function onTDown;
   late Function onTUp;
-  late Function onTCancel;
 
   MoveButtons({
     Sprite? sprite,
@@ -12,10 +11,8 @@ class MoveButtons extends SpriteComponent with Tappable {
     Vector2? size,
     required Function onTDown,
     required Function onTUp,
-    required Function onTCancel,
   })  : onTDown = onTDown,
         onTUp = onTUp,
-        onTCancel = onTCancel,
         super(
           sprite: sprite,
           position: position,
@@ -24,19 +21,13 @@ class MoveButtons extends SpriteComponent with Tappable {
         );
   @override
   bool onTapUp(_) {
-    onTDown();
-    return true;
-  }
-
-  @override
-  bool onTapDown(_) {
     onTUp();
     return true;
   }
 
   @override
-  bool onTapCancel() {
-    onTCancel();
+  bool onTapDown(_) {
+    onTDown();
     return true;
   }
 }

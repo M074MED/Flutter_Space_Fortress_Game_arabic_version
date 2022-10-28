@@ -27,15 +27,21 @@ class SpaceFortressGame extends FlameGame
   late Player player;
   int playerPoints = 0;
   int velocityScore = 0;
+  int controlScore = 0;
   int playerShots = 100;
   late Fortress fortress;
   late Mine mine;
+  String bonus = "";
+  List<String> bonuses = [];
+  bool bonusToked = false;
   late FortressFireManager _fortressFireManager;
   late JoystickComponent joystick;
   late TextComponent _playerPoints;
   late TextComponent _playerShots;
   late TextComponent _velocityScore;
   late TextComponent _mineCode;
+  late TextComponent _bonus;
+  late TextComponent _controlScore;
   // late TextComponent _playerHealth;
   late AudioPlayerComponent _audioPlayerComponent;
   late PolygonComponent outerHexagonShape;
@@ -156,19 +162,34 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(80, size.y - 110),
         size: Vector2(64, 64),
         onTDown: () {
-          player.moveAngel =
-              Vector2(sin(player.angle), -cos(player.angle)).clone();
-          player.speed = 50;
+          // player.moveAngel =
+          //     Vector2(sin(player.angle), -cos(player.angle)).clone();
           player.move = true;
+
+          final double newAngle = player.angle;
+          if (newAngle >= 0 && newAngle < pi / 2) {
+            player.newAngleDir = 0;
+          } else if (newAngle >= pi / 2 && newAngle < pi) {
+            player.newAngleDir = 1;
+          } else if (newAngle >= pi && newAngle < (3 * pi) / 2) {
+            player.newAngleDir = 2;
+          } else if (newAngle >= (3 * pi) / 2 && newAngle < 2 * pi) {
+            player.newAngleDir = 3;
+          }
+          player.onTurbo = true;
         },
         onTUp: () {
-          player.moveAngel =
-              Vector2(sin(player.angle), -cos(player.angle)).clone();
-          player.speed = 200;
-          player.move = true;
-        },
-        onTCancel: () {
-          player.move = false;
+          final double oldAngle = player.angle;
+          if (oldAngle >= 0 && oldAngle < pi / 2) {
+            player.oldAngleDir = 0;
+          } else if (oldAngle >= pi / 2 && oldAngle < pi) {
+            player.oldAngleDir = 1;
+          } else if (oldAngle >= pi && oldAngle < (3 * pi) / 2) {
+            player.oldAngleDir = 2;
+          } else if (oldAngle >= (3 * pi) / 2 && oldAngle < 2 * pi) {
+            player.oldAngleDir = 3;
+          }
+          player.onTurbo = false;
         },
       );
       add(moveButton);
@@ -178,12 +199,9 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(120, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
-          player.rotateRight = false;
-        },
-        onTUp: () {
           player.rotateRight = true;
         },
-        onTCancel: () {
+        onTUp: () {
           player.rotateRight = false;
         },
       );
@@ -195,12 +213,9 @@ class SpaceFortressGame extends FlameGame
         position: Vector2(40, size.y - 70),
         size: Vector2(64, 64),
         onTDown: () {
-          player.rotateLeft = false;
-        },
-        onTUp: () {
           player.rotateLeft = true;
         },
-        onTCancel: () {
+        onTUp: () {
           player.rotateLeft = false;
         },
       );
@@ -259,6 +274,33 @@ class SpaceFortressGame extends FlameGame
       _mineCode.positionType = PositionType.viewport;
       add(_mineCode);
 
+      _controlScore = TextComponent(
+        text: "CNTRL: ",
+        position: Vector2(550, 10),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+        ),
+      );
+      _controlScore.positionType = PositionType.viewport;
+      add(_controlScore);
+
+      _bonus = TextComponent(
+        text: "",
+        position: fortress.position + Vector2(0, 60),
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+      );
+      _bonus.anchor = Anchor.center;
+      _bonus.positionType = PositionType.viewport;
+      add(_bonus);
+
       // _playerHealth = TextComponent(
       //   text: "Health: 100%",
       //   position: Vector2(size.x - 10, 10),
@@ -315,6 +357,24 @@ class SpaceFortressGame extends FlameGame
     }
   }
 
+  void bonusFunc() {
+    if (frameCounter % 240 == 0) {
+      if (bonus.isEmpty) {
+        bonus = '@#\$%&*'.split("")[Random().nextInt(5)];
+        bonuses.add(bonus);
+      }
+    } else if (frameCounter % 600 == 0) {
+      if (bonuses.length >= 2) {
+        // if (bonuses[bonuses.length - 1] == "\$" &&
+        //     bonuses[bonuses.length - 2] == "\$") {
+        //   print(bonuses[bonuses.length - 1] + bonuses[bonuses.length - 2]);
+        // }
+        bonuses.clear();
+      }
+      bonus = "";
+    }
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -333,6 +393,8 @@ class SpaceFortressGame extends FlameGame
     _playerShots.text = "Shots: $playerShots";
     _velocityScore.text = "VLCTY: $velocityScore";
     _mineCode.text = "IFF: ${mineOnScreen ? mine.code : ""}";
+    _controlScore.text = "CNTRL: $controlScore";
+    _bonus.text = bonusToked ? "BONUS" : bonus;
     // _playerHealth.text = "Health: ${player.health}%";
 
     // if (player.health <= 0 && !camera.shaking) {
@@ -381,11 +443,20 @@ class SpaceFortressGame extends FlameGame
       outOfHexagons = true;
     }
 
+    bonusFunc();
+
+    generateMines();
+
+    if (frameCounter == 600) {
+      frameCounter = 0;
+    }
+  }
+
+  void generateMines() {
     mineOnScreen = children.whereType<Mine>().isNotEmpty;
     if (mineOnScreen) {
       if (frameCounter % 600 == 0) {
         mine.removeFromParent();
-        frameCounter = 0;
       }
     } else {
       if (frameCounter % 240 == 0) {

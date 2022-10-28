@@ -42,13 +42,13 @@ class Fortress extends SpriteComponent
   @override
   void update(double dt) {
     super.update(dt);
-    if (gameRef.player.move) {
-      lookAt(gameRef.player.position);
-    }
     frameCounter++;
+
+    lookAt(gameRef.player.position);
+    
     if (frameCounter == 120) {
       if (inCollisionWithPlayer) {
-        gameRef.playerPoints -= 5;
+        gameRef.controlScore -= 5;
         print("-5 points when inCollisionWithPlayer");
         inCollisionWithPlayer = false;
       }
@@ -89,10 +89,11 @@ class Fortress extends SpriteComponent
                 250) {
               finish += 1;
               if (finish == 2) {
+                gameRef.playerPoints += 100;
                 if (gameRef.inOuterHexagon || gameRef.inInnerHexagon) {
-                  gameRef.playerPoints += 100;
+                  gameRef.controlScore += 100;
                 } else if (gameRef.outOfHexagons) {
-                  gameRef.playerPoints += (100 * 0.5).toInt();
+                  gameRef.controlScore += (100 * 0.5).toInt();
                 }
                 removeFromParent();
                 final particleComponent = ParticleSystemComponent(

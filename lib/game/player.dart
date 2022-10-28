@@ -10,10 +10,14 @@ import 'package:space_fortress/game/game.dart';
 
 class Player extends SpriteComponent
     with HasGameRef<SpaceFortressGame>, CollisionCallbacks {
-  double speed = 50;
+  double speed = 0;
+  double maxSpeed = 250;
   final Random _random = Random();
   int health = 4;
   bool move = false;
+  bool onTurbo = false;
+  int oldAngleDir = 0;
+  int newAngleDir = 0;
   Vector2 moveAngel = Vector2(0, 0);
   bool rotateRight = false;
   bool rotateLeft = false;
@@ -59,7 +63,7 @@ class Player extends SpriteComponent
 
     if (frameCounter % 10 == 0) {
       if (inHyperSpace) {
-        gameRef.playerPoints -= 35;
+        gameRef.controlScore -= 35;
         inHyperSpace = false;
       }
     }
@@ -70,14 +74,47 @@ class Player extends SpriteComponent
     super.update(dt);
     frameCounter++;
 
+    if (onTurbo) {
+      if (oldAngleDir == newAngleDir) {
+        moveAngel = Vector2(sin(angle), -cos(angle)).clone();
+        speed += 2;
+        if (speed > maxSpeed) {
+          speed = maxSpeed;
+        }
+      } else {
+        if (oldAngleDir + newAngleDir == 2 || oldAngleDir + newAngleDir == 4) {
+          speed -= 2;
+          if (speed <= 0) {
+            oldAngleDir = newAngleDir;
+          }
+        } else {
+          moveAngel = Vector2(sin(angle), -cos(angle)).clone();
+          speed += 2;
+          if (speed > maxSpeed) {
+            speed = maxSpeed;
+          }
+        }
+      }
+      print(speed);
+      print("oldAngleDir $oldAngleDir");
+      print("newAngleDir $newAngleDir");
+      print("Angle $angle");
+    }
+
     if (move) {
       position.add(moveAngel * speed * dt);
     }
     if (rotateRight) {
       angle += 2 * dt;
+      if (angle > 2 * pi) {
+        angle = 0;
+      }
     }
     if (rotateLeft) {
       angle -= 2 * dt;
+      if (angle < 0) {
+        angle = 2 * pi;
+      }
     }
     // if (gameRef.joystick.direction != JoystickDirection.idle) {
     //   position.add(gameRef.joystick.delta * _speed * dt);
@@ -104,7 +141,7 @@ class Player extends SpriteComponent
     ensureVisible(position, gameRef.size);
 
     if (frameCounter % 30 == 0) {
-      if (speed < 200) {
+      if (speed < 150) {
         gameRef.velocityScore += 7;
       } else {
         gameRef.velocityScore -= 7;
@@ -112,26 +149,26 @@ class Player extends SpriteComponent
       frameCounter = 0;
     }
 
-    if (health == 0) {
-      gameRef.playerPoints -= 100;
-      removeFromParent();
-      final particleComponent = ParticleSystemComponent(
-        particle: Particle.generate(
-          count: 10,
-          lifespan: 0.1,
-          generator: (i) => AcceleratedParticle(
-            acceleration: getRandomVector(),
-            speed: getRandomVector(),
-            position: position.clone(),
-            child: CircleParticle(
-              radius: 1.5,
-              paint: Paint()..color = Colors.white,
-            ),
-          ),
-        ),
-      );
-      gameRef.add(particleComponent);
-    }
+    // if (health == 0) {
+    //   gameRef.playerPoints -= 100;
+    //   removeFromParent();
+    //   final particleComponent = ParticleSystemComponent(
+    //     particle: Particle.generate(
+    //       count: 10,
+    //       lifespan: 0.1,
+    //       generator: (i) => AcceleratedParticle(
+    //         acceleration: getRandomVector(),
+    //         speed: getRandomVector(),
+    //         position: position.clone(),
+    //         child: CircleParticle(
+    //           radius: 1.5,
+    //           paint: Paint()..color = Colors.white,
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    //   gameRef.add(particleComponent);
+    // }
   }
 
   @override

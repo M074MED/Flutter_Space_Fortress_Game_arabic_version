@@ -19,22 +19,20 @@ class FortressFireManager extends Component with HasGameRef<SpaceFortressGame> {
   }
 
   void _fortressFire() {
-    if (gameRef.player.move) {
-      Vector2 initialSize = Vector2(64, 64);
-      Vector2 position = gameRef.fortress.position;
-      // position.clamp(
-      //     Vector2.zero() + initialSize / 2, gameRef.size - initialSize / 2);
+    Vector2 initialSize = Vector2(64, 64);
+    Vector2 position = gameRef.fortress.position;
+    // position.clamp(
+    //     Vector2.zero() + initialSize / 2, gameRef.size - initialSize / 2);
 
-      Bullet fortressBullet = Bullet(
+    Bullet fortressBullet = Bullet(
       name: "fortressBullet",
-        sprite: spriteSheet.getSpriteById(31),
-        size: initialSize,
-        position: position,
-        playerAngle: gameRef.fortress.angle,
-      );
-      fortressBullet.anchor = Anchor.center;
-      gameRef.add(fortressBullet);
-    }
+      sprite: spriteSheet.getSpriteById(31),
+      size: initialSize,
+      position: position,
+      playerAngle: gameRef.fortress.angle,
+    );
+    fortressBullet.anchor = Anchor.center;
+    gameRef.add(fortressBullet);
   }
 
   @override

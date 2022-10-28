@@ -61,6 +61,11 @@ class Mine extends SpriteComponent
     } else if (other is Bullet && other.name == "playerBullet") {
       if (!isFoe) {
         gameRef.playerPoints += 20;
+        if (gameRef.inOuterHexagon || gameRef.inInnerHexagon) {
+          gameRef.controlScore += 20;
+        } else if (gameRef.outOfHexagons) {
+          gameRef.controlScore += (20 * 0.5).toInt();
+        }
         gameRef.fortress.health += 1;
       }
       destroy();
