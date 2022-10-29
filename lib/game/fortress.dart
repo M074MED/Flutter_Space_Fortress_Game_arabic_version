@@ -45,7 +45,7 @@ class Fortress extends SpriteComponent
     frameCounter++;
 
     lookAt(gameRef.player.position);
-    
+
     if (frameCounter == 120) {
       if (inCollisionWithPlayer) {
         gameRef.controlScore -= 5;
@@ -62,6 +62,14 @@ class Fortress extends SpriteComponent
       if (health < 10) {
         if (healthDecreaseTime.isEmpty) {
           health += 1;
+          gameRef.playerPoints += 4;
+          if (gameRef.inOuterHexagon || gameRef.inInnerHexagon) {
+            gameRef.controlScore += 4;
+          } else if (gameRef.outOfHexagons) {
+            gameRef.controlScore += (4 * 0.5).toInt();
+          }
+
+          gameRef.fortressHitByMissile++;
         }
         healthDecreaseTime.add(DateTime.now());
         if (healthDecreaseTime.length >= 2) {
@@ -70,6 +78,14 @@ class Fortress extends SpriteComponent
                   .inMilliseconds >=
               250) {
             health += 1;
+            gameRef.playerPoints += 4;
+            if (gameRef.inOuterHexagon || gameRef.inInnerHexagon) {
+              gameRef.controlScore += 4;
+            } else if (gameRef.outOfHexagons) {
+              gameRef.controlScore += (4 * 0.5).toInt();
+            }
+
+            gameRef.fortressHitByMissile++;
           } else {
             health = 0;
             healthDecreaseTime.clear();
@@ -112,6 +128,8 @@ class Fortress extends SpriteComponent
                   ),
                 );
                 gameRef.add(particleComponent);
+
+                gameRef.fortressDestruction++;
               }
             } else {
               finish = 0;

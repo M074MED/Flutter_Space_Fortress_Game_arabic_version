@@ -1,8 +1,6 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
-import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
@@ -20,18 +18,14 @@ import 'package:space_fortress/widgets/overlays/pause_button.dart';
 import 'package:space_fortress/widgets/overlays/pause_menu.dart';
 
 import 'mine.dart';
+import 'package:collection/collection.dart';
 
 class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
   late SpriteSheet spriteSheet;
   late Player player;
-  int playerPoints = 0;
-  int velocityScore = 0;
-  int controlScore = 0;
-  int playerShots = 100;
   late Fortress fortress;
   late Mine mine;
-  String bonus = "";
   List<String> bonuses = [];
   bool bonusToked = false;
   late FortressFireManager _fortressFireManager;
@@ -54,6 +48,20 @@ class SpaceFortressGame extends FlameGame
   bool outOfHexagons = false;
   bool mineOnScreen = false;
   int frameCounter = 0;
+
+  // Backend Data Variables
+  int playerPoints = 0;
+  int velocityScore = 0;
+  int controlScore = 0;
+  int playerShots = 100;
+  String bonus = "";
+  int shipDamageByFortress = 0;
+  int fortressDestruction = 0;
+  int shipDamageByMine = 0;
+  int fortressHitByMissile = 0;
+  int bonusTaken = 0; // TODO: Implementation Not Found
+  List<DateTime> fireTimes = [];
+  double fireAverage = 0;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -152,6 +160,18 @@ class SpaceFortressGame extends FlameGame
               playerPoints -= 3;
             }
             _audioPlayerComponent.playSfx("laserSmall.ogg");
+            fireTimes.add(DateTime.now());
+            List<int> fireTimesDiff = [];
+            if (fireTimes.length >= 2) {
+              for (var i = 0; i < fireTimes.length - 1; i++) {
+                fireTimesDiff.add(fireTimes[i + 1]
+                    .difference(fireTimes[i])
+                    .inMilliseconds
+                    .abs());
+              }
+              fireAverage = fireTimesDiff.average;
+              print("fireAverage $fireAverage");
+            }
           }
         },
       );

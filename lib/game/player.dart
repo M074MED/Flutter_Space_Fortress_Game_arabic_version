@@ -149,26 +149,28 @@ class Player extends SpriteComponent
       frameCounter = 0;
     }
 
-    // if (health == 0) {
-    //   gameRef.playerPoints -= 100;
-    //   removeFromParent();
-    //   final particleComponent = ParticleSystemComponent(
-    //     particle: Particle.generate(
-    //       count: 10,
-    //       lifespan: 0.1,
-    //       generator: (i) => AcceleratedParticle(
-    //         acceleration: getRandomVector(),
-    //         speed: getRandomVector(),
-    //         position: position.clone(),
-    //         child: CircleParticle(
-    //           radius: 1.5,
-    //           paint: Paint()..color = Colors.white,
-    //         ),
-    //       ),
-    //     ),
-    //   );
-    //   gameRef.add(particleComponent);
-    // }
+    if (health == 0) {
+      gameRef.playerPoints -= 100;
+      removeFromParent();
+      final particleComponent = ParticleSystemComponent(
+        particle: Particle.generate(
+          count: 10,
+          lifespan: 0.1,
+          generator: (i) => AcceleratedParticle(
+            acceleration: getRandomVector(),
+            speed: getRandomVector(),
+            position: position.clone(),
+            child: CircleParticle(
+              radius: 1.5,
+              paint: Paint()..color = Colors.white,
+            ),
+          ),
+        ),
+      );
+      gameRef.add(particleComponent);
+      // print(
+      //     "shipDamageByFortress ${gameRef.shipDamageByFortress}\nfortressDestruction ${gameRef.fortressDestruction}\nshipDamageByMine ${gameRef.shipDamageByMine}\nfortressHitByMissile ${gameRef.fortressHitByMissile}\nbonusTaken ${gameRef.bonusTaken}");
+    }
   }
 
   @override
@@ -176,6 +178,8 @@ class Player extends SpriteComponent
     if (other is Bullet && other.name == "fortressBullet") {
       gameRef.playerPoints -= 50;
       health -= 1;
+
+      gameRef.shipDamageByFortress++;
       other.removeFromParent();
     }
     super.onCollision(intersectionPoints, other);

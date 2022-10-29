@@ -58,6 +58,8 @@ class Mine extends SpriteComponent
         gameRef.playerPoints -= 50;
       }
       destroy();
+      
+      gameRef.shipDamageByMine++;
     } else if (other is Bullet && other.name == "playerBullet") {
       if (!isFoe) {
         gameRef.playerPoints += 20;
