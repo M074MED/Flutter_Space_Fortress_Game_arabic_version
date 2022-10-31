@@ -16,6 +16,8 @@ class Mine extends SpriteComponent
   int speed = 100;
   String code = getRandomChar();
   late bool isFoe;
+  late DateTime loadTime;
+  late bool isPlayerAct;
 
   Vector2 getRandomVector() =>
       (Vector2.random(_random) - Vector2.random(_random)) * 500;
@@ -32,6 +34,8 @@ class Mine extends SpriteComponent
     position = Vector2(_random.nextInt((gameRef.size.x).toInt()).toDouble(),
         _random.nextInt((gameRef.size.y).toInt()).toDouble());
     isFoe = foeMinesCode.contains(code) ? true : false;
+    loadTime = DateTime.now();
+    isPlayerAct = false;
 
     add(RectangleHitbox(
         anchor: Anchor.center, position: size / 2, size: size - Vector2.all(25))
@@ -58,7 +62,7 @@ class Mine extends SpriteComponent
         gameRef.playerPoints -= 50;
       }
       destroy();
-      
+
       gameRef.shipDamageByMine++;
     } else if (other is Bullet && other.name == "playerBullet") {
       if (!isFoe) {

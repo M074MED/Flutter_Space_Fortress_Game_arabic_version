@@ -62,6 +62,10 @@ class SpaceFortressGame extends FlameGame
   int bonusTaken = 0; // TODO: Implementation Not Found
   List<DateTime> fireTimes = [];
   double fireAverage = 0;
+  List<int> foeMineLoadAndPlayerActTimesDiff = [];
+  double foeMineLoadAndPlayerActTimesDiffAverage = 0;
+  List<int> friendlyMineLoadAndPlayerActTimesDiff = [];
+  double friendlyMineLoadAndPlayerActTimesDiffAverage = 0;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
@@ -160,6 +164,7 @@ class SpaceFortressGame extends FlameGame
               playerPoints -= 3;
             }
             _audioPlayerComponent.playSfx("laserSmall.ogg");
+
             fireTimes.add(DateTime.now());
             List<int> fireTimesDiff = [];
             if (fireTimes.length >= 2) {
@@ -172,6 +177,8 @@ class SpaceFortressGame extends FlameGame
               fireAverage = fireTimesDiff.average;
               print("fireAverage $fireAverage");
             }
+
+            calcMineLoadAndPlayerActTimesDiffAverage();
           }
         },
       );
@@ -197,6 +204,8 @@ class SpaceFortressGame extends FlameGame
             player.newAngleDir = 3;
           }
           player.onTurbo = true;
+
+          calcMineLoadAndPlayerActTimesDiffAverage();
         },
         onTUp: () {
           final double oldAngle = player.angle;
@@ -220,6 +229,8 @@ class SpaceFortressGame extends FlameGame
         size: Vector2(64, 64),
         onTDown: () {
           player.rotateRight = true;
+
+          calcMineLoadAndPlayerActTimesDiffAverage();
         },
         onTUp: () {
           player.rotateRight = false;
@@ -234,6 +245,8 @@ class SpaceFortressGame extends FlameGame
         size: Vector2(64, 64),
         onTDown: () {
           player.rotateLeft = true;
+
+          calcMineLoadAndPlayerActTimesDiffAverage();
         },
         onTUp: () {
           player.rotateLeft = false;
@@ -374,6 +387,27 @@ class SpaceFortressGame extends FlameGame
       add(innerHexagonShape);
 
       _isAlreadyLoaded = true;
+    }
+  }
+
+  void calcMineLoadAndPlayerActTimesDiffAverage() {
+    if (mineOnScreen) {
+      if (!mine.isPlayerAct) {
+        if (mine.isFoe) {
+          foeMineLoadAndPlayerActTimesDiff
+              .add(DateTime.now().difference(mine.loadTime).inMilliseconds);
+          foeMineLoadAndPlayerActTimesDiffAverage =
+              foeMineLoadAndPlayerActTimesDiff.average;
+        } else {
+          friendlyMineLoadAndPlayerActTimesDiff
+              .add(DateTime.now().difference(mine.loadTime).inMilliseconds);
+          friendlyMineLoadAndPlayerActTimesDiffAverage =
+              friendlyMineLoadAndPlayerActTimesDiff.average;
+        }
+        mine.isPlayerAct = true;
+        print(
+            "foeMineLoadAndPlayerActTimesDiff $foeMineLoadAndPlayerActTimesDiff\nfoeMineLoadAndPlayerActTimesDiffAverage $foeMineLoadAndPlayerActTimesDiffAverage\nfriendlyMineLoadAndPlayerActTimesDiff $friendlyMineLoadAndPlayerActTimesDiff\nfriendlyMineLoadAndPlayerActTimesDiffAverage $friendlyMineLoadAndPlayerActTimesDiffAverage");
+      }
     }
   }
 
