@@ -24,6 +24,7 @@ class Player extends SpriteComponent
   bool inHyperSpace = false;
   bool canShoot = true;
   int frameCounter = 0;
+  late Vector2 oldPosition;
 
   // Vector2 getRandomVector() =>
   //     (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
@@ -42,6 +43,7 @@ class Player extends SpriteComponent
 
   @override
   Future<void>? onLoad() {
+    oldPosition = position.clone();
     add(CircleHitbox(anchor: Anchor.center, position: size / 2, radius: 23));
     return super.onLoad();
   }
@@ -95,10 +97,10 @@ class Player extends SpriteComponent
           }
         }
       }
-      print(speed);
-      print("oldAngleDir $oldAngleDir");
-      print("newAngleDir $newAngleDir");
-      print("Angle $angle");
+      // print(speed);
+      // print("oldAngleDir $oldAngleDir");
+      // print("newAngleDir $newAngleDir");
+      // print("Angle $angle");
     }
 
     if (move) {
@@ -146,7 +148,15 @@ class Player extends SpriteComponent
       } else {
         gameRef.velocityScore -= 7;
       }
-      frameCounter = 0;
+    }
+
+    if (frameCounter % 120 == 0) {
+      gameRef.totalPlayerDistance += oldPosition.distanceTo(position);
+      oldPosition = position.clone();
+      // print("oldPosition = $oldPosition");
+      // print("currentPosition = $position");
+      // print("totalPlayerDistance = ${gameRef.totalPlayerDistance}");
+      frameCounter == 0;
     }
 
     if (health == 0) {

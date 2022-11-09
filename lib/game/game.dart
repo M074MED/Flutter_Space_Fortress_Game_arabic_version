@@ -66,6 +66,7 @@ class SpaceFortressGame extends FlameGame
   double foeMineLoadAndPlayerActTimesDiffAverage = 0;
   List<int> friendlyMineLoadAndPlayerActTimesDiff = [];
   double friendlyMineLoadAndPlayerActTimesDiffAverage = 0;
+  double totalPlayerDistance = 0;
 
   final _commandList = List<Command>.empty(growable: true);
   final _addLaterCommandList = List<Command>.empty(growable: true);
