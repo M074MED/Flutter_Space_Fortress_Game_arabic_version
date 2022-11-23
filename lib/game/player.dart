@@ -5,7 +5,6 @@ import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress/game/bullet.dart';
-import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
 
 class Player extends SpriteComponent
@@ -198,6 +197,7 @@ class Player extends SpriteComponent
   @override
   void onRemove() {
     gameRef.playerRemoved = true;
+    gameRef.playerDeathTimes++;
     super.onRemove();
   }
 
@@ -206,8 +206,20 @@ class Player extends SpriteComponent
   // }
 
   void reset() {
-    // _score = 0;
-    // _health = 100;
-    position = gameRef.canvasSize / 2;
+    speed = 0;
+    maxSpeed = 250;
+    health = 4;
+    move = false;
+    onTurbo = false;
+    oldAngleDir = 0;
+    newAngleDir = 0;
+    moveAngel = Vector2(0, 0);
+    rotateRight = false;
+    rotateLeft = false;
+    inHyperSpace = false;
+    canShoot = true;
+    frameCounter = 0;
+    position = gameRef.playerPosition;
+    angle = 0;
   }
 }

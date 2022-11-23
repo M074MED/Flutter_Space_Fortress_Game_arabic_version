@@ -98,10 +98,4 @@ class Mine extends SpriteComponent
     );
     gameRef.add(particleComponent);
   }
-
-  // void reset() {
-  //   _score = 0;
-  //   _health = 100;
-  //   position = gameRef.canvasSize / 2;
-  // }
 }

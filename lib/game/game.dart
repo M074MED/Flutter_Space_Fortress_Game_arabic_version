@@ -4,18 +4,22 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
+import 'package:flame/particles.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress/game/audio_player_component.dart';
 import 'package:space_fortress/game/bullet.dart';
 import 'package:space_fortress/game/command.dart';
-import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/fortress_fire_manager.dart';
 import 'package:space_fortress/game/fortress.dart';
 import 'package:space_fortress/game/move_buttons.dart';
 import 'package:space_fortress/game/player.dart';
+import 'package:space_fortress/models/sessions.dart';
+import 'package:space_fortress/screens/main_menu.dart';
+import 'package:space_fortress/widgets/overlays/game_over_menu.dart';
 import 'package:space_fortress/widgets/overlays/pause_button.dart';
 import 'package:space_fortress/widgets/overlays/pause_menu.dart';
+import 'package:backendless_sdk/backendless_sdk.dart' as bkl;
 
 import 'mine.dart';
 import 'package:collection/collection.dart';
@@ -24,8 +28,11 @@ class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
   late SpriteSheet spriteSheet;
   late Player player;
+  Vector2 playerPosition = Vector2(180, 130);
   late Fortress fortress;
   late Mine mine;
+  int foeMineFinish = 0;
+  List<DateTime> foeMinefinishDecreaseTime = [];
   List<String> bonuses = [];
   bool bonusToked = false;
   late FortressFireManager _fortressFireManager;
@@ -48,6 +55,7 @@ class SpaceFortressGame extends FlameGame
   bool outOfHexagons = false;
   bool mineOnScreen = false;
   int frameCounter = 0;
+  int playerDeathTimes = 0;
 
   // Backend Data Variables
   int playerPoints = 0;
@@ -98,7 +106,7 @@ class SpaceFortressGame extends FlameGame
       player = Player(
         sprite: spriteSheet.getSpriteById(4),
         size: Vector2(50, 50),
-        position: Vector2(180, 130),
+        position: playerPosition,
       );
       player.anchor = Anchor.center;
       add(player);
@@ -179,6 +187,36 @@ class SpaceFortressGame extends FlameGame
               print("fireAverage $fireAverage");
             }
 
+            calcMineLoadAndPlayerActTimesDiffAverage();
+          } else if (mine.isFoe) {
+            if (foeMineFinish < 2) {
+              if (foeMinefinishDecreaseTime.isEmpty) {
+                foeMineFinish += 1;
+              }
+              foeMinefinishDecreaseTime.add(DateTime.now());
+              if (foeMinefinishDecreaseTime.length >= 2) {
+                if (foeMinefinishDecreaseTime[
+                            foeMinefinishDecreaseTime.length - 1]
+                        .difference(foeMinefinishDecreaseTime[
+                            foeMinefinishDecreaseTime.length - 2])
+                        .inMilliseconds <
+                    250) {
+                  foeMineFinish += 1;
+                  if (foeMineFinish == 2) {
+                    playerPoints += 30;
+                    if (inOuterHexagon || inInnerHexagon) {
+                      controlScore += 30;
+                    } else if (outOfHexagons) {
+                      controlScore += (30 * 0.5).toInt();
+                    }
+                    mine.destroy();
+                  }
+                } else {
+                  foeMineFinish = 0;
+                  foeMinefinishDecreaseTime.clear();
+                }
+              }
+            }
             calcMineLoadAndPlayerActTimesDiffAverage();
           }
         },
@@ -452,11 +490,18 @@ class SpaceFortressGame extends FlameGame
     _bonus.text = bonusToked ? "BONUS" : bonus;
     // _playerHealth.text = "Health: ${player.health}%";
 
-    // if (player.health <= 0 && !camera.shaking) {
-    //   pauseEngine();
-    //   overlays.remove(PauseButton.id);
-    //   overlays.add(GameOverMenu.id);
-    // }
+    if (playerDeathTimes >= 3) {
+      pauseEngine();
+      overlays.remove(PauseButton.id);
+      overlays.add(GameOverMenu.id);
+      playerDeathTimes = 0;
+      // send data
+      try {
+        sendSessionData();
+      } catch (e) {
+        print("$e");
+      }
+    }
     if (playerRemoved) {
       Future.delayed(const Duration(milliseconds: 1000), () {
         player = Player(
@@ -507,6 +552,33 @@ class SpaceFortressGame extends FlameGame
     }
   }
 
+  void sendSessionData() async {
+    await bkl.Backendless.data
+        .of("Sessions")
+        .save(Sessions(
+          playerPoints: playerPoints,
+          velocityScore: velocityScore,
+          controlScore: controlScore,
+          playerShots: playerShots,
+          shipDamageByFortress: shipDamageByFortress,
+          fortressDestruction: fortressDestruction,
+          shipDamageByMine: shipDamageByMine,
+          fortressHitByMissile: fortressHitByMissile,
+          bonusTaken: bonusTaken,
+          fireAverage: fireAverage,
+          foeMineLoadAndPlayerActTimesDiffAverage:
+              foeMineLoadAndPlayerActTimesDiffAverage,
+          friendlyMineLoadAndPlayerActTimesDiffAverage:
+              friendlyMineLoadAndPlayerActTimesDiffAverage,
+          totalPlayerDistance: totalPlayerDistance,
+          assigned_username: usernameInput.text,
+        ).toJson())
+        .catchError((error, stackTrace) {
+      print("Error: ${error.toString()}");
+    });
+    print("Session created!");
+  }
+
   void generateMines() {
     mineOnScreen = children.whereType<Mine>().isNotEmpty;
     if (mineOnScreen) {
@@ -542,8 +614,37 @@ class SpaceFortressGame extends FlameGame
   void reset() {
     player.reset();
     _fortressFireManager.reset();
+    fortress.reset();
 
-    children.whereType<Enemy>().forEach((enemy) => {enemy.removeFromParent()});
+    // Reset Variables
+    bonuses = [];
+    bonusToked = false;
+    fortressRemoved = false;
+    inOuterHexagon = false;
+    inInnerHexagon = false;
+    outOfHexagons = false;
+    mineOnScreen = false;
+    frameCounter = 0;
+    playerDeathTimes = 0;
+    playerPoints = 0;
+    velocityScore = 0;
+    controlScore = 0;
+    playerShots = 100;
+    bonus = "";
+    shipDamageByFortress = 0;
+    fortressDestruction = 0;
+    shipDamageByMine = 0;
+    fortressHitByMissile = 0;
+    bonusTaken = 0;
+    fireTimes = [];
+    fireAverage = 0;
+    foeMineLoadAndPlayerActTimesDiff = [];
+    foeMineLoadAndPlayerActTimesDiffAverage = 0;
+    friendlyMineLoadAndPlayerActTimesDiff = [];
+    friendlyMineLoadAndPlayerActTimesDiffAverage = 0;
+    totalPlayerDistance = 0;
+
+    children.whereType<Mine>().forEach((mine) => {mine.removeFromParent()});
     children
         .whereType<Bullet>()
         .forEach((bullet) => {bullet.removeFromParent()});

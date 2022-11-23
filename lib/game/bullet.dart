@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:space_fortress/game/enemy.dart';
 import 'package:space_fortress/game/game.dart';
 
 class Bullet extends SpriteComponent
@@ -43,11 +42,8 @@ class Bullet extends SpriteComponent
     }
   }
 
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Enemy) {
-      removeFromParent();
-    }
-    super.onCollision(intersectionPoints, other);
-  }
+  // @override
+  // void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+  //   super.onCollision(intersectionPoints, other);
+  // }
 }

@@ -152,9 +152,12 @@ class Fortress extends SpriteComponent
     super.onRemove();
   }
 
-  // void reset() {
-  //   _score = 0;
-  //   _health = 100;
-  //   position = gameRef.canvasSize / 2;
-  // }
+  void reset() {
+    health = 0;
+    healthDecreaseTime = [];
+    finish = 0;
+    finishDecreaseTime = [];
+    inCollisionWithPlayer = false;
+    frameCounter = 0;
+  }
 }
