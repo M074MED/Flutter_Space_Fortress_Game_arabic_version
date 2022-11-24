@@ -38,8 +38,9 @@ class Mine extends SpriteComponent
     isPlayerAct = false;
 
     add(RectangleHitbox(
-        anchor: Anchor.center, position: size / 2, size: size - Vector2.all(25))
-      ..debugMode = true);
+        anchor: Anchor.center,
+        position: size / 2,
+        size: size - Vector2.all(25)));
     return super.onLoad();
   }
 

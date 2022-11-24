@@ -5,7 +5,9 @@ import 'package:space_fortress/screens/settings_menu.dart';
 
 class AudioPlayerComponent extends Component {
   late AudioPool fire;
-  late AudioPool kill;
+  late AudioPool killPlayer;
+  late AudioPool bonus;
+  late AudioPool killFortress;
 
   @override
   Future<void>? onLoad() async {
@@ -13,11 +15,15 @@ class AudioPlayerComponent extends Component {
     await FlameAudio.audioCache.loadAll([
       "laser.ogg",
       "laserSmall.ogg",
+      "success_bell-6776.mp3",
+      "medium-explosion-40472.mp3",
       // "SpaceInvaders.wav",
     ]);
 
     fire = await AudioPool.create("audio/laserSmall.ogg", maxPlayers: 9999999);
-    kill = await AudioPool.create("audio/laser.ogg", maxPlayers: 9999999);
+    killPlayer = await AudioPool.create("audio/laser.ogg", maxPlayers: 9999999);
+    bonus = await AudioPool.create("audio/success_bell-6776.mp3", maxPlayers: 9999999);
+    killFortress = await AudioPool.create("audio/medium-explosion-40472.mp3", maxPlayers: 9999999);
 
     return super.onLoad();
   }
@@ -36,7 +42,13 @@ class AudioPlayerComponent extends Component {
           fire.start();
           break;
         case "laser.ogg":
-          kill.start();
+          killPlayer.start();
+          break;
+        case "success_bell-6776.mp3":
+          bonus.start();
+          break;
+        case "medium-explosion-40472.mp3":
+          killFortress.start();
           break;
         default:
       }

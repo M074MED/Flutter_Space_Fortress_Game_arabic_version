@@ -34,8 +34,9 @@ class Fortress extends SpriteComponent
   @override
   Future<void>? onLoad() {
     add(RectangleHitbox(
-        anchor: Anchor.center, position: size / 2, size: size - Vector2.all(10))
-      ..debugMode = true);
+        anchor: Anchor.center,
+        position: size / 2,
+        size: size - Vector2.all(10)));
     return super.onLoad();
   }
 
@@ -112,6 +113,8 @@ class Fortress extends SpriteComponent
                   gameRef.controlScore += (100 * 0.5).toInt();
                 }
                 removeFromParent();
+                gameRef.audioPlayerComponent
+                    .playSfx("medium-explosion-40472.mp3");
                 final particleComponent = ParticleSystemComponent(
                   particle: Particle.generate(
                     count: 10,

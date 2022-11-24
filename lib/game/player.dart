@@ -161,6 +161,7 @@ class Player extends SpriteComponent
     if (health == 0) {
       gameRef.playerPoints -= 100;
       removeFromParent();
+      gameRef.audioPlayerComponent.playSfx("laser.ogg");
       final particleComponent = ParticleSystemComponent(
         particle: Particle.generate(
           count: 10,
@@ -197,7 +198,7 @@ class Player extends SpriteComponent
   @override
   void onRemove() {
     gameRef.playerRemoved = true;
-    gameRef.playerDeathTimes++;
+    // gameRef.playerDeathTimes++;
     super.onRemove();
   }
 

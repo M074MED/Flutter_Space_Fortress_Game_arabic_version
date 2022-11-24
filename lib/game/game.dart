@@ -33,8 +33,13 @@ class SpaceFortressGame extends FlameGame
   late Mine mine;
   int foeMineFinish = 0;
   List<DateTime> foeMinefinishDecreaseTime = [];
+  String bonus = "";
   List<String> bonuses = [];
   bool bonusToked = false;
+  int pointsBonusFinish = 0;
+  List<DateTime> pointsBonusFinishDecreaseTime = [];
+  int fireBonusFinish = 0;
+  List<DateTime> fireBonusFinishDecreaseTime = [];
   late FortressFireManager _fortressFireManager;
   late JoystickComponent joystick;
   late TextComponent _playerPoints;
@@ -44,7 +49,7 @@ class SpaceFortressGame extends FlameGame
   late TextComponent _bonus;
   late TextComponent _controlScore;
   // late TextComponent _playerHealth;
-  late AudioPlayerComponent _audioPlayerComponent;
+  late AudioPlayerComponent audioPlayerComponent;
   late PolygonComponent outerHexagonShape;
   late PolygonComponent innerHexagonShape;
   bool _isAlreadyLoaded = false;
@@ -62,12 +67,11 @@ class SpaceFortressGame extends FlameGame
   int velocityScore = 0;
   int controlScore = 0;
   int playerShots = 100;
-  String bonus = "";
   int shipDamageByFortress = 0;
   int fortressDestruction = 0;
   int shipDamageByMine = 0;
   int fortressHitByMissile = 0;
-  int bonusTaken = 0; // TODO: Implementation Not Found
+  int bonusTaken = 0;
   List<DateTime> fireTimes = [];
   double fireAverage = 0;
   List<int> foeMineLoadAndPlayerActTimesDiff = [];
@@ -84,8 +88,8 @@ class SpaceFortressGame extends FlameGame
     if (!_isAlreadyLoaded) {
       await images.loadAll(["simpleSpace_tilesheet@2.png", "joystick.png"]);
 
-      _audioPlayerComponent = AudioPlayerComponent();
-      add(_audioPlayerComponent);
+      audioPlayerComponent = AudioPlayerComponent();
+      add(audioPlayerComponent);
 
       ParallaxComponent _background = await ParallaxComponent.load(
         [
@@ -172,7 +176,7 @@ class SpaceFortressGame extends FlameGame
               playerShots = 0;
               playerPoints -= 3;
             }
-            _audioPlayerComponent.playSfx("laserSmall.ogg");
+            audioPlayerComponent.playSfx("laserSmall.ogg");
 
             fireTimes.add(DateTime.now());
             List<int> fireTimesDiff = [];
@@ -211,11 +215,11 @@ class SpaceFortressGame extends FlameGame
                     }
                     mine.destroy();
                   }
-                } else {
-                  foeMineFinish = 0;
-                  foeMinefinishDecreaseTime.clear();
                 }
               }
+            } else {
+              foeMineFinish = 0;
+              foeMinefinishDecreaseTime.clear();
             }
             calcMineLoadAndPlayerActTimesDiffAverage();
           }
@@ -268,8 +272,43 @@ class SpaceFortressGame extends FlameGame
         size: Vector2(64, 64),
         onTDown: () {
           player.rotateRight = true;
-
           calcMineLoadAndPlayerActTimesDiffAverage();
+
+          if (pointsBonusFinish < 2) {
+            if (pointsBonusFinishDecreaseTime.isEmpty) {
+              pointsBonusFinish += 1;
+            }
+            pointsBonusFinishDecreaseTime.add(DateTime.now());
+            if (pointsBonusFinishDecreaseTime.length >= 2) {
+              if (pointsBonusFinishDecreaseTime[
+                          pointsBonusFinishDecreaseTime.length - 1]
+                      .difference(pointsBonusFinishDecreaseTime[
+                          pointsBonusFinishDecreaseTime.length - 2])
+                      .inMilliseconds <
+                  250) {
+                pointsBonusFinish += 1;
+                if (pointsBonusFinish == 2) {
+                  if (bonuses.length >= 2) {
+                    if (bonuses[bonuses.length - 1] == "\$" &&
+                        bonuses[bonuses.length - 2] == "\$") {
+                      playerPoints += 100;
+                      if (inOuterHexagon || inInnerHexagon) {
+                        controlScore += 100;
+                      } else if (outOfHexagons) {
+                        controlScore += (100 * 0.5).toInt();
+                      }
+                      bonusTaken++;
+                      audioPlayerComponent.playSfx("success_bell-6776.mp3");
+                    }
+                    bonuses.clear();
+                  }
+                }
+              }
+            }
+          } else {
+            pointsBonusFinish = 0;
+            pointsBonusFinishDecreaseTime.clear();
+          }
         },
         onTUp: () {
           player.rotateRight = false;
@@ -284,8 +323,38 @@ class SpaceFortressGame extends FlameGame
         size: Vector2(64, 64),
         onTDown: () {
           player.rotateLeft = true;
-
           calcMineLoadAndPlayerActTimesDiffAverage();
+
+          if (fireBonusFinish < 2) {
+            if (fireBonusFinishDecreaseTime.isEmpty) {
+              fireBonusFinish += 1;
+            }
+            fireBonusFinishDecreaseTime.add(DateTime.now());
+            if (fireBonusFinishDecreaseTime.length >= 2) {
+              if (fireBonusFinishDecreaseTime[
+                          fireBonusFinishDecreaseTime.length - 1]
+                      .difference(fireBonusFinishDecreaseTime[
+                          fireBonusFinishDecreaseTime.length - 2])
+                      .inMilliseconds <
+                  250) {
+                fireBonusFinish += 1;
+                if (fireBonusFinish == 2) {
+                  if (bonuses.length >= 2) {
+                    if (bonuses[bonuses.length - 1] == "\$" &&
+                        bonuses[bonuses.length - 2] == "\$") {
+                      playerShots += 50;
+                      bonusTaken++;
+                      audioPlayerComponent.playSfx("success_bell-6776.mp3");
+                    }
+                    bonuses.clear();
+                  }
+                }
+              }
+            }
+          } else {
+            fireBonusFinish = 0;
+            fireBonusFinishDecreaseTime.clear();
+          }
         },
         onTUp: () {
           player.rotateLeft = false;

@@ -67,6 +67,8 @@ flutter:
     - assets/audio/
     - assets/audio/laser.ogg
     - assets/audio/laserSmall.ogg
+    - assets/audio/medium-explosion-40472.mp3
+    - assets/audio/success_bell-6776.mp3
     - assets/audio/SpaceInvaders.wav
 
   # An image asset can refer to one or more resolution-specific "variants", see
