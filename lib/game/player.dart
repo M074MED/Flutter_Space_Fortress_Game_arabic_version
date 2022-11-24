@@ -198,7 +198,7 @@ class Player extends SpriteComponent
   @override
   void onRemove() {
     gameRef.playerRemoved = true;
-    // gameRef.playerDeathTimes++;
+    gameRef.playerDeathTimes++;
     super.onRemove();
   }
 
