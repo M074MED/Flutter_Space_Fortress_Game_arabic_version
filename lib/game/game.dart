@@ -28,7 +28,7 @@ class SpaceFortressGame extends FlameGame
     with HasTappables, HasCollisionDetection, HasDraggables {
   late SpriteSheet spriteSheet;
   late Player player;
-  Vector2 playerPosition = Vector2(180, 130);
+  late Vector2 playerPosition;
   late Fortress fortress;
   late Mine mine;
   int foeMineFinish = 0;
@@ -107,6 +107,7 @@ class SpaceFortressGame extends FlameGame
           columns: 8,
           rows: 6);
 
+      playerPosition = Vector2(230, size.y / 2 - 30);
       player = Player(
         sprite: spriteSheet.getSpriteById(4),
         size: Vector2(50, 50),
@@ -229,8 +230,8 @@ class SpaceFortressGame extends FlameGame
 
       MoveButtons moveButton = MoveButtons(
         sprite: spriteSheet.getSpriteById(0),
-        position: Vector2(80, size.y - 110),
-        size: Vector2(64, 64),
+        position: Vector2(110, size.y - 130),
+        size: Vector2(80, 80),
         onTDown: () {
           // player.moveAngel =
           //     Vector2(sin(player.angle), -cos(player.angle)).clone();
@@ -268,8 +269,8 @@ class SpaceFortressGame extends FlameGame
 
       MoveButtons rotateRightButton = MoveButtons(
         sprite: spriteSheet.getSpriteById(0),
-        position: Vector2(120, size.y - 70),
-        size: Vector2(64, 64),
+        position: Vector2(180, size.y - 70),
+        size: Vector2(80, 80),
         onTDown: () {
           player.rotateRight = true;
           calcMineLoadAndPlayerActTimesDiffAverage();
@@ -320,7 +321,7 @@ class SpaceFortressGame extends FlameGame
       MoveButtons rotateLeftButton = MoveButtons(
         sprite: spriteSheet.getSpriteById(0),
         position: Vector2(40, size.y - 70),
-        size: Vector2(64, 64),
+        size: Vector2(80, 80),
         onTDown: () {
           player.rotateLeft = true;
           calcMineLoadAndPlayerActTimesDiffAverage();
@@ -391,7 +392,7 @@ class SpaceFortressGame extends FlameGame
 
       _velocityScore = TextComponent(
         text: "VLCTY: 0",
-        position: Vector2(400, 10),
+        position: Vector2(size.x - 350, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -404,7 +405,7 @@ class SpaceFortressGame extends FlameGame
 
       _mineCode = TextComponent(
         text: "IFF: ",
-        position: Vector2(500, 10),
+        position: Vector2(size.x - 225, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -417,7 +418,7 @@ class SpaceFortressGame extends FlameGame
 
       _controlScore = TextComponent(
         text: "CNTRL: ",
-        position: Vector2(550, 10),
+        position: Vector2(size.x - 130, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -430,7 +431,7 @@ class SpaceFortressGame extends FlameGame
 
       _bonus = TextComponent(
         text: "",
-        position: fortress.position + Vector2(0, 60),
+        position: fortress.position + Vector2(0, 70),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -465,14 +466,13 @@ class SpaceFortressGame extends FlameGame
           Vector2(1.0, 0.5),
           Vector2(1.0, -0.5),
         ],
-        parentSize: size,
+        parentSize: Vector2(size.y - 100, size.x - 100),
         paint: Paint()..color = Colors.white12,
         anchor: Anchor.center,
         position: size / 2,
         angle: 4.7,
-        scale: Vector2(0.5, 1.4),
+        scale: Vector2(1, 0.8),
       );
-
       add(outerHexagonShape);
 
       innerHexagonShape = PolygonComponent.relative(
@@ -484,12 +484,12 @@ class SpaceFortressGame extends FlameGame
           Vector2(1.0, 0.5),
           Vector2(1.0, -0.5),
         ],
-        parentSize: size,
+        parentSize: fortress.size + Vector2(40, 40),
         paint: Paint()..color = Colors.white24,
         anchor: Anchor.center,
         position: size / 2,
         angle: 4.7,
-        scale: Vector2(0.12, 0.3),
+        scale: Vector2(1, 1),
       );
 
       add(innerHexagonShape);
@@ -576,7 +576,7 @@ class SpaceFortressGame extends FlameGame
         player = Player(
           sprite: spriteSheet.getSpriteById(4),
           size: Vector2(50, 50),
-          position: Vector2(180, 130),
+          position: playerPosition,
         );
         player.anchor = Anchor.center;
         add(player);

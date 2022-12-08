@@ -46,10 +46,10 @@ class _MainMenuState extends State<MainMenu> {
       body: Center(
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 50.0),
+                padding: EdgeInsets.symmetric(vertical: 25.0),
                 child: Text(
                   "Space Fortress",
                   textAlign: TextAlign.center,
@@ -127,7 +127,7 @@ class _MainMenuState extends State<MainMenu> {
                 ),
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               Text(
                 "The code of foe mines is\n${foeMinesCode.join(",")}",
