@@ -10,9 +10,12 @@ void showSnackBar(BuildContext context, String message) {
       topRight: Radius.circular(5),
     )),
     backgroundColor: Colors.red,
-    content: Text(
-      message,
-      style: const TextStyle(color: Colors.white),
+    content: Directionality(
+      textDirection: TextDirection.rtl,
+      child: Text(
+        message,
+        style: const TextStyle(color: Colors.white),
+      ),
     ),
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);

@@ -69,20 +69,23 @@ class _MainMenuState extends State<MainMenu> {
               SizedBox(
                 width: MediaQuery.of(context).size.width / 3,
                 height: 40,
-                child: TextField(
-                  decoration: const InputDecoration(
-                    iconColor: Colors.white,
-                    labelText: 'Enter Username',
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    labelStyle: TextStyle(color: Colors.white),
-                  ),
-                  controller: usernameInput,
-                  style: const TextStyle(
-                    fontFamily: "",
-                    color: Colors.white,
-                    fontSize: 16,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      iconColor: Colors.white,
+                      labelText: 'ادخل اسم المستخدم',
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                    controller: usernameInput,
+                    style: const TextStyle(
+                      fontFamily: "",
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -94,7 +97,7 @@ class _MainMenuState extends State<MainMenu> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (usernameInput.text == "") {
-                      showSnackBar(context, "Please Enter a Username!");
+                      showSnackBar(context, "من فضلك قم بادخال اسم المستخدم");
                     } else {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
@@ -103,8 +106,11 @@ class _MainMenuState extends State<MainMenu> {
                       );
                     }
                   },
-                  child: const Text(
-                    "Play",
+                  child: const Directionality(
+                        textDirection: TextDirection.rtl,
+                    child: Text(
+                      "ابدأ",
+                    ),
                   ),
                 ),
               ),
@@ -121,18 +127,24 @@ class _MainMenuState extends State<MainMenu> {
                       ),
                     );
                   },
-                  child: const Text(
-                    "Options",
+                  child: const Directionality(
+                        textDirection: TextDirection.rtl,
+                    child: Text(
+                      "الاعدادات",
+                    ),
                   ),
                 ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                "The code of foe mines is\n${foeMinesCode.join(",")}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18),
+              Directionality(
+                        textDirection: TextDirection.rtl,
+                child: Text(
+                  "كود الالغام هو\n${foeMinesCode.join(",")}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),

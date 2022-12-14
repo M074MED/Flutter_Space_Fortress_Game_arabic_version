@@ -20,18 +20,21 @@ class PauseMenu extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 50.0),
-            child: Text(
-              "Paused",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 50.0,
-                shadows: [
-                  Shadow(
-                    blurRadius: 40.0,
-                    color: Colors.white,
-                    offset: Offset(0, 0),
-                  ),
-                ],
+            child: Directionality(
+                        textDirection: TextDirection.rtl,
+              child: Text(
+                "قائمة الايقاف",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 50.0,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 40.0,
+                      color: Colors.white,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -43,8 +46,11 @@ class PauseMenu extends StatelessWidget {
                 gameRef.overlays.remove(PauseMenu.id);
                 gameRef.overlays.add(PauseButton.id);
               },
-              child: const Text(
-                "Resume",
+              child: const Directionality(
+                        textDirection: TextDirection.rtl,
+                child: Text(
+                  "استئناف",
+                ),
               ),
             ),
           ),
@@ -60,8 +66,11 @@ class PauseMenu extends StatelessWidget {
                 gameRef.reset();
                 gameRef.resumeEngine();
               },
-              child: const Text(
-                "Restart",
+              child: const Directionality(
+                        textDirection: TextDirection.rtl,
+                child: Text(
+                  "اعادة التشغيل",
+                ),
               ),
             ),
           ),
@@ -82,8 +91,11 @@ class PauseMenu extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text(
-                "Exit",
+              child: const Directionality(
+                        textDirection: TextDirection.rtl,
+                child: Text(
+                  "خروج",
+                ),
               ),
             ),
           ),

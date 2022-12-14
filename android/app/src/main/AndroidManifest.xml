@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.space_fortress">
+    package="com.example.space_fortress_arabic">
    <application
-        android:label="Space Fortress English"
+        android:label="Space Fortress Arabic"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

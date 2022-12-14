@@ -365,8 +365,8 @@ class SpaceFortressGame extends FlameGame
       add(rotateLeftButton);
 
       _playerPoints = TextComponent(
-        text: "Points: 0",
-        position: Vector2(10, 10),
+        text: "النقاط: 0",
+        position: Vector2(size.x - 100, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -378,8 +378,8 @@ class SpaceFortressGame extends FlameGame
       add(_playerPoints);
 
       _playerShots = TextComponent(
-        text: "Shots: 100",
-        position: Vector2(150, 10),
+        text: "الطلقات: 100",
+        position: Vector2(size.x - 250, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -391,8 +391,8 @@ class SpaceFortressGame extends FlameGame
       add(_playerShots);
 
       _velocityScore = TextComponent(
-        text: "VLCTY: 0",
-        position: Vector2(size.x - 350, 10),
+        text: "السرعة: 0",
+        position: Vector2(300, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -404,8 +404,8 @@ class SpaceFortressGame extends FlameGame
       add(_velocityScore);
 
       _mineCode = TextComponent(
-        text: "IFF: ",
-        position: Vector2(size.x - 225, 10),
+        text: " :اللغم",
+        position: Vector2(200, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -417,8 +417,8 @@ class SpaceFortressGame extends FlameGame
       add(_mineCode);
 
       _controlScore = TextComponent(
-        text: "CNTRL: ",
-        position: Vector2(size.x - 130, 10),
+        text: "التحكم: ",
+        position: Vector2(80, 10),
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -551,11 +551,11 @@ class SpaceFortressGame extends FlameGame
     _commandList.addAll(_addLaterCommandList);
     _addLaterCommandList.clear();
 
-    _playerPoints.text = "Points: $playerPoints";
-    _playerShots.text = "Shots: $playerShots";
-    _velocityScore.text = "VLCTY: $velocityScore";
-    _mineCode.text = "IFF: ${mineOnScreen ? mine.code : ""}";
-    _controlScore.text = "CNTRL: $controlScore";
+    _playerPoints.text = "$playerPoints :النقاط";
+    _playerShots.text = "$playerShots :الطلقات";
+    _velocityScore.text = "$velocityScore :السرعة";
+    _mineCode.text = "${mineOnScreen ? mine.code : ""} :اللغم";
+    _controlScore.text = "$controlScore :التحكم";
     _bonus.text = bonusToked ? "BONUS" : bonus;
     // _playerHealth.text = "Health: ${player.health}%";
 

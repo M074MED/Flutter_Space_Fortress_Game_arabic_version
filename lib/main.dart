@@ -8,7 +8,7 @@ void main() {
   Flame.device.fullScreen();
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   runApp(MaterialApp(
-    title: "Space Fortress",
+    title: "Space Fortress (Arabic Version)",
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.dark,
     darkTheme: ThemeData(
